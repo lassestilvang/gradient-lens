@@ -23,16 +23,19 @@ fi
 cd ..
 
 # 3. Pull and Run the Piper container
-echo "📦 Running Piper with volume mount..."
+# We use rhasspy/piper because it provides a more standard, reliable HTTP API.
+echo "📦 Running rhasspy/piper container..."
 docker rm -f piper-tts || true
 docker run -d \
     --name piper-tts \
     --restart unless-stopped \
     -p 5555:5000 \
-    -v "$(pwd)/piper_models:/app/models" \
-    artibex/piper-http:latest
+    -v "$(pwd)/piper_models:/quality" \
+    rhasspy/piper:latest \
+    --model /quality/model.onnx \
+    --http
 
 echo "✅ Piper TTS is running on port 5555!"
 echo "Check logs with: docker logs -f piper-tts"
-echo "Your endpoint will be: http://$(curl -s ifconfig.me):5555/tts"
-echo "Update your .env.local with: PIPER_TTS_URL=http://$(curl -s ifconfig.me):5555/tts"
+echo "Your endpoint will be: http://$(curl -s ifconfig.me):5555/"
+echo "Update your .env.local with: PIPER_TTS_URL=http://$(curl -s ifconfig.me):5555/"
