@@ -106,10 +106,14 @@ if [[ "$DEPLOY_CLOUD" == "true" ]]; then
   # Validate spec before creating
   echo "🔍 Validating app.yaml spec..."
   if ! doctl apps spec validate app.yaml; then
+    # Get current region from app.yaml if not provided as flag
+    HINT_REGION="${REGION:-$(grep '^region: ' app.yaml | cut -d ' ' -f2)}"
+    [ -z "$HINT_REGION" ] && HINT_REGION="nyc3"
+
     echo ""
     echo "❌ app.yaml validation failed."
-    echo "💡 HINT: Ensure you have created the database cluster first:"
-    echo "   doctl databases create gradient-lens-redis-cluster --engine valkey --region nyc1 --size db-s-1vcpu-1gb --num-nodes 1"
+    echo "💡 HINT: Ensure you have created the database cluster in the same region ($HINT_REGION):"
+    echo "   doctl databases create gradient-lens-redis-cluster --engine valkey --region $HINT_REGION --size db-s-1vcpu-1gb --num-nodes 1"
     echo ""
     exit 1
   fi

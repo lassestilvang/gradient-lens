@@ -60,7 +60,7 @@ Alternatively, use the DigitalOcean CLI.
 >
 > ```bash
 > # Create the cluster (takes ~5 minutes)
-> doctl databases create gradient-lens-redis-cluster --engine valkey --region nyc1 --size db-s-1vcpu-1gb --num-nodes 1
+> doctl databases create gradient-lens-redis-cluster --engine valkey --region nyc3 --size db-s-1vcpu-1gb --num-nodes 1
 > ```
 
 Once the cluster is ready, deploy the app:

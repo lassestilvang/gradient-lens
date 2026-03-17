@@ -1,5 +1,5 @@
 name: gradient-lens
-region: nyc
+region: ams3
 services:
 - name: gradient-lens
   github:

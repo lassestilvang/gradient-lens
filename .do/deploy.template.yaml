@@ -1,6 +1,6 @@
 spec:
   name: gradient-lens
-  region: nyc
+  region: nyc3
   services:
   - name: gradient-lens
     build_command: npm run build
