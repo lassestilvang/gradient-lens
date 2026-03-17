@@ -31,5 +31,5 @@ spec:
   databases:
   - engine: REDIS
     name: gradient-lens-redis
-    production: false
+    production: true
     version: "7"

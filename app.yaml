@@ -34,5 +34,5 @@ services:
 databases:
 - engine: REDIS
   name: gradient-lens-redis
-  production: false # Use dev database for hackathon context; user can toggle to true for prod.
+  production: true # Fixed: Redis must be production: true on DO App Platform
   version: "7"
