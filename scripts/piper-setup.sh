@@ -34,6 +34,12 @@ docker run -d \
     -e MODEL=/app/models/model.onnx \
     artibex/piper-http:latest
 
+docker run -d --gpus all \
+    --name kokoro-tts \
+    -p 8880:8880 \
+    --restart unless-stopped \
+    ghcr.io/remsky/kokoro-fastapi-gpu:latest
+
 echo "✅ Piper TTS is running on port 5555!"
 echo "Check logs with: docker logs -f piper-tts"
 echo "Your endpoint will be: http://$(curl -s ifconfig.me):5555/"
