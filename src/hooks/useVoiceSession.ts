@@ -225,6 +225,9 @@ export function useVoiceSession(
         const pastGraceWindow = now - assistantSpeechStartedRef.current >= BARGE_IN_GRACE_MS;
         const cooldownFinished = now - lastInterruptRef.current >= BARGE_IN_COOLDOWN_MS;
 
+        // Barge-in is disabled to prevent self-interruption.
+        // The assistant will now speak until completion regardless of detected input volume.
+        /*
         if (currentlySpeaking && pastGraceWindow && cooldownFinished) {
           const rms = getRms();
           if (rms >= BARGE_IN_RMS_THRESHOLD) {
@@ -239,6 +242,7 @@ export function useVoiceSession(
             loudFrames = 0;
           }
         }
+        */
 
         wasSpeaking = currentlySpeaking;
       }
