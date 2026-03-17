@@ -1,0 +1,38 @@
+name: gradient-lens
+region: nyc
+services:
+- name: gradient-lens
+  github:
+    branch: main
+    deploy_on_push: true
+    repo: lasse/gradient-lens
+  build_command: npm run build
+  run_command: npm start
+  http_port: 3000
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  envs:
+  - key: REDIS_URL
+    scope: RUN_AND_BUILD_TIME
+    value: ${gradient-lens-redis.DATABASE_URL}
+  - key: DO_GRADIENT_MODEL_ACCESS_KEY
+    scope: RUN_TIME
+    type: SECRET
+  - key: DO_GRADIENT_BASE_URL
+    scope: RUN_TIME
+    value: https://inference.do-ai.run
+  - key: DO_GRADIENT_TEXT_MODEL
+    scope: RUN_TIME
+    value: llama3.3-70b-instruct
+  - key: DO_GRADIENT_VISION_MODEL
+    scope: RUN_TIME
+    value: openai-gpt-4o-mini
+  - key: MEMORY_TTL_SECONDS
+    scope: RUN_TIME
+    value: "86400"
+
+databases:
+- engine: REDIS
+  name: gradient-lens-redis
+  production: false # Use dev database for hackathon context; user can toggle to true for prod.
+  version: "7"
