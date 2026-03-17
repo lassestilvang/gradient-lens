@@ -32,4 +32,5 @@ spec:
   - engine: REDIS
     name: gradient-lens-redis
     production: true
+    cluster_name: gradient-lens-redis-cluster
     version: "7"

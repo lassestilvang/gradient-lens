@@ -34,5 +34,6 @@ services:
 databases:
 - engine: REDIS
   name: gradient-lens-redis
-  production: true # Fixed: Redis must be production: true on DO App Platform
+  production: true
+  cluster_name: gradient-lens-redis-cluster # REQUIRED: The name of an existing Managed Redis cluster
   version: "7"
