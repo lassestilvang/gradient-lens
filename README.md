@@ -53,7 +53,17 @@ Run `./scripts/deploy.sh` to validate env and build output before deploying to D
 
 [![Deploy to DigitalOcean](https://www.deploytodo.com/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/lasse/gradient-lens/tree/main)
 
-Alternatively, use the DigitalOcean CLI:
+Alternatively, use the DigitalOcean CLI.
+
+> [!IMPORTANT]
+> **Prerequisite**: You must create a Managed Database cluster **before** deploying the App Spec, as Redis/Valkey cannot be auto-provisioned within the spec.
+>
+> ```bash
+> # Create the cluster (takes ~5 minutes)
+> doctl databases create gradient-lens-redis-cluster --engine valkey --region nyc1 --size db-s-1vcpu-1gb --num-nodes 1
+> ```
+
+Once the cluster is ready, deploy the app:
 ```bash
 doctl apps create --spec app.yaml
 ```

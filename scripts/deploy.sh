@@ -64,7 +64,11 @@ if [[ "${1:-}" == "--cloud" ]]; then
   # Validate spec before creating
   echo "🔍 Validating app.yaml spec..."
   if ! doctl apps spec validate app.yaml; then
+    echo ""
     echo "❌ app.yaml validation failed."
+    echo "💡 HINT: Ensure you have created the database cluster first:"
+    echo "   doctl databases create gradient-lens-redis-cluster --engine valkey --region nyc1 --size db-s-1vcpu-1gb --num-nodes 1"
+    echo ""
     exit 1
   fi
 
