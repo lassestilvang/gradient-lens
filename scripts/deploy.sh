@@ -92,8 +92,17 @@ if [[ "${1:-}" == "--cloud" ]]; then
     exit 1
   fi
 
-  echo "📦 Creating app on DigitalOcean App Platform..."
-  doctl apps create --spec app.yaml
+  echo "📦 Preparing deployment to DigitalOcean App Platform..."
+  APP_NAME=$(grep '^name: ' app.yaml | cut -d ' ' -f2)
+  EXISTING_APP_ID=$(doctl apps list --format ID,Spec.Name --no-header | grep "$APP_NAME" | awk '{print $1}' || echo "")
+
+  if [ -n "$EXISTING_APP_ID" ]; then
+    echo "🔄 Updating existing app: $APP_NAME (ID: $EXISTING_APP_ID)..."
+    doctl apps update "$EXISTING_APP_ID" --spec app.yaml
+  else
+    echo "✨ Creating new app: $APP_NAME..."
+    doctl apps create --spec app.yaml
+  fi
 else
   echo "Next step: deploy this Next.js app to DigitalOcean App Platform."
   echo "You can also run './scripts/deploy.sh --cloud' to deploy via doctl automatically."
