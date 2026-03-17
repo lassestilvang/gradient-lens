@@ -87,7 +87,7 @@ export default function Page() {
     pendingObservationRef.current = null;
     lastSpokenObservationRef.current = { text: pendingObservation, timestamp: Date.now() };
     voice.interrupt();
-    voice.sendText(`${pendingObservation} Please tell the user this immediately in one short sentence.`);
+    voice.sendText(`${pendingObservation} Please tell the user this immediately in one short sentence.`, true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [voice.isConnected, voice.interrupt, voice.sendText]);
 
@@ -100,7 +100,8 @@ export default function Page() {
 
       if (voice.isConnected && voice.isGrounded) {
         voice.sendText(
-          `[System Observation] The user has manually set a goal: "${trimmedGoal}". Please acknowledge this and explain how you will help.`
+          `[System Observation] The user has manually set a goal: "${trimmedGoal}". Please acknowledge this and explain how you will help.`,
+          true
         );
       }
     }
@@ -184,7 +185,7 @@ export default function Page() {
                   console.info('[Page] Interrupting active AI speech for sighting');
                   voice.interrupt('proactive_sighting');
                 }
-                voice.sendText(`${observation} Please tell the user this immediately in one short sentence.`);
+                voice.sendText(`${observation} Please tell the user this immediately in one short sentence.`, true);
               } else {
                 pendingObservationRef.current = observation;
               }
@@ -245,7 +246,8 @@ export default function Page() {
                 voice.interrupt('proactive_advice');
               }
               voice.sendText(
-                `[System Observation] ${suggestionResult.suggestionPrompt} Please tell the user this immediately in one concise sentence.`
+                `[System Observation] ${suggestionResult.suggestionPrompt} Please tell the user this immediately in one concise sentence.`,
+                true
               );
             }
           }
@@ -321,7 +323,7 @@ export default function Page() {
       const greetingInstruction = currentGoal
         ? `[System Observation] Please greet the user warmly. They have a goal: "${currentGoal}". Briefly acknowledge it and ask how you can assist.`
         : "[System Observation] Please greet the user warmly and ask what they would like help with today.";
-      voice.sendText(greetingInstruction);
+      voice.sendText(greetingInstruction, true);
     } else if (!voice.isConnected) {
       greetingSentRef.current = false;
     }

@@ -48,6 +48,7 @@ export interface VoiceEvent {
   toolUseId?: string;
   toolInput?: Record<string, unknown>;
   error?: string;
+  isSystem?: boolean;
 }
 
 type VoiceEventCallback = (event: VoiceEvent) => void;
@@ -238,7 +239,7 @@ export class VoiceSession {
     this.recognition = recognition;
   }
 
-  sendText(text: string): void {
+  sendText(text: string, isSystem: boolean = false): void {
     if (!this.active) {
       this.emit({ type: 'error', error: 'Not connected' });
       return;
@@ -249,7 +250,7 @@ export class VoiceSession {
       return;
     }
 
-    this.emit({ type: 'transcript', text: message });
+    this.emit({ type: 'transcript', text: message, isSystem });
 
     if (shouldAnalyzeFrame(message)) {
       const toolUseId = createId('tool');

@@ -15,8 +15,8 @@ export interface UseVoiceSessionReturn {
   endSession: () => Promise<void>;
   /** Toggle microphone capture */
   toggleCapture: () => Promise<void>;
-  /** Send text (fallback when mic unavailable) */
-  sendText: (text: string) => void;
+  /** Send text (fallback when mic unavailable or for system instructions) */
+  sendText: (text: string, isSystem?: boolean) => void;
   /** Send a tool result back to the assistant session */
   sendToolResult: (toolUseId: string, result: string | Record<string, unknown>) => void;
   /** Interrupt current playback */
@@ -108,7 +108,7 @@ export function useVoiceSession(
             break;
 
           case 'transcript':
-            if (event.text) {
+            if (event.text && !event.isSystem) {
               const text = event.text;
               setTranscript((prev) => appendWithSpace(prev, text));
             }
@@ -167,9 +167,9 @@ export function useVoiceSession(
     }
   }, [isCapturing]);
 
-  const sendText = useCallback((text: string) => {
+  const sendText = useCallback((text: string, isSystem: boolean = false) => {
     if (sessionRef.current) {
-      sessionRef.current.sendText(text);
+      sessionRef.current.sendText(text, isSystem);
     }
   }, []);
 
