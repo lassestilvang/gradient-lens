@@ -314,6 +314,16 @@ export class VoiceSession {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       window.speechSynthesis.cancel();
     }
+    
+    if (this.currentAudioSource) {
+      try {
+        this.currentAudioSource.stop();
+      } catch (e) {
+        // Source might have already ended
+      }
+      this.currentAudioSource = null;
+    }
+
     this.speaking = false;
     this.emit({ type: 'text', text: `[Interrupted: ${reason}]` });
     
@@ -363,46 +373,71 @@ export class VoiceSession {
     }
   }
 
-  private speak(text: string): void {
-    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+  private async speak(text: string): Promise<void> {
+    if (typeof window === 'undefined') {
       return;
     }
 
     // Set speaking flag immediately to block recognition restarts
     this.speaking = true;
-    
+
     // Stop recognition to avoid hearing own voice
     if (this.recognition) {
-       this.recognition.stop();
-       this.recognition = null;
+      this.recognition.stop();
+      this.recognition = null;
     }
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 1;
-    utterance.pitch = 1;
+    try {
+      const response = await fetch('/api/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text }),
+      });
 
-    utterance.onstart = () => {
-      this.speaking = true;
-    };
-    utterance.onend = () => {
-      this.speaking = false;
-      // Restart recognition after a short delay to avoid catching any remaining echo
-      setTimeout(() => {
-        if (this.capturingAudio && !this.speaking) {
-          this.setupSpeechRecognition();
-        }
-      }, 400);
-    };
-    utterance.onerror = () => {
+      if (!response.ok) {
+        throw new Error('Failed to fetch TTS audio');
+      }
+
+      const audioData = await response.arrayBuffer();
+      
+      if (!this.audioContext || this.audioContext.state === 'closed') {
+        this.audioContext = new AudioContext();
+      }
+
+      // Resume context if suspended (common in browsers)
+      if (this.audioContext.state === 'suspended') {
+        await this.audioContext.resume();
+      }
+
+      const buffer = await this.audioContext.decodeAudioData(audioData);
+      const source = this.audioContext.createBufferSource();
+      source.buffer = buffer;
+      source.connect(this.audioContext.destination);
+
+      source.onended = () => {
+        this.speaking = false;
+        // Restart recognition after a short delay to avoid catching any remaining echo
+        setTimeout(() => {
+          if (this.capturingAudio && !this.speaking) {
+            this.setupSpeechRecognition();
+          }
+        }, 400);
+      };
+
+      // Handle interruption
+      this.currentAudioSource = source;
+      
+      source.start(0);
+    } catch (error) {
+      console.error('[VoiceSession] TTS playback error:', error);
       this.speaking = false;
       if (this.capturingAudio) {
         this.setupSpeechRecognition();
       }
-    };
-
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(utterance);
+    }
   }
+
+  private currentAudioSource: AudioBufferSourceNode | null = null;
 
   get connected(): boolean {
     return this.active;
