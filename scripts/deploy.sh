@@ -60,6 +60,26 @@ if [[ "${1:-}" == "--cloud" ]]; then
     echo "❌ doctl is not installed. Please install it to use cloud deployment."
     exit 1
   fi
+
+  # Sync models from .env.local to app.yaml if they exist
+  if [ -f ".env.local" ]; then
+    echo "🔄 Syncing model IDs from .env.local to app.yaml..."
+    
+    TEXT_MODEL=$(grep '^DO_GRADIENT_TEXT_MODEL=' .env.local | cut -d '=' -f2)
+    VISION_MODEL=$(grep '^DO_GRADIENT_VISION_MODEL=' .env.local | cut -d '=' -f2)
+    
+    if [ -n "$TEXT_MODEL" ]; then
+      sed -i '' "s/\(key: DO_GRADIENT_TEXT_MODEL\).*/\1\n    scope: RUN_TIME\n    value: $TEXT_MODEL/" app.yaml
+      # Note: This sed is a bit fragile without a specific line match, 
+      # but since we control the app.yaml format it's a quick win.
+      # Let's do a more robust replacement:
+      sed -i '' "/key: DO_GRADIENT_TEXT_MODEL/{n;n;s/value: .*/value: $TEXT_MODEL/;}" app.yaml
+    fi
+    
+    if [ -n "$VISION_MODEL" ]; then
+      sed -i '' "/key: DO_GRADIENT_VISION_MODEL/{n;n;s/value: .*/value: $VISION_MODEL/;}" app.yaml
+    fi
+  fi
   
   # Validate spec before creating
   echo "🔍 Validating app.yaml spec..."
