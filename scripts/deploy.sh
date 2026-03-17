@@ -53,7 +53,27 @@ npm run build
 echo ""
 echo "✅ Local deployment prep complete."
 
-if [[ "${1:-}" == "--cloud" ]]; then
+# Parse arguments
+DEPLOY_CLOUD=false
+REGION=""
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --cloud)
+      DEPLOY_CLOUD=true
+      shift
+      ;;
+    --region)
+      REGION="$2"
+      shift 2
+      ;;
+    *)
+      shift
+      ;;
+  esac
+done
+
+if [[ "$DEPLOY_CLOUD" == "true" ]]; then
   echo ""
   echo "🚀 Triggering DigitalOcean Cloud Deployment..."
   if ! command -v doctl >/dev/null 2>&1; then
@@ -69,16 +89,18 @@ if [[ "${1:-}" == "--cloud" ]]; then
     VISION_MODEL=$(grep '^DO_GRADIENT_VISION_MODEL=' .env.local | cut -d '=' -f2)
     
     if [ -n "$TEXT_MODEL" ]; then
-      sed -i '' "s/\(key: DO_GRADIENT_TEXT_MODEL\).*/\1\n    scope: RUN_TIME\n    value: $TEXT_MODEL/" app.yaml
-      # Note: This sed is a bit fragile without a specific line match, 
-      # but since we control the app.yaml format it's a quick win.
-      # Let's do a more robust replacement:
       sed -i '' "/key: DO_GRADIENT_TEXT_MODEL/{n;n;s/value: .*/value: $TEXT_MODEL/;}" app.yaml
     fi
     
     if [ -n "$VISION_MODEL" ]; then
       sed -i '' "/key: DO_GRADIENT_VISION_MODEL/{n;n;s/value: .*/value: $VISION_MODEL/;}" app.yaml
     fi
+  fi
+
+  # Sync region if provided
+  if [ -n "$REGION" ]; then
+    echo "🌍 Setting region to: $REGION in app.yaml..."
+    sed -i '' "s/^region: .*/region: $REGION/" app.yaml
   fi
   
   # Validate spec before creating
@@ -105,6 +127,6 @@ if [[ "${1:-}" == "--cloud" ]]; then
   fi
 else
   echo "Next step: deploy this Next.js app to DigitalOcean App Platform."
-  echo "You can also run './scripts/deploy.sh --cloud' to deploy via doctl automatically."
+  echo "You can also run './scripts/deploy.sh --cloud [--region <region>]' to deploy via doctl automatically."
 fi
 echo ""

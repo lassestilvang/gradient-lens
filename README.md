@@ -69,7 +69,7 @@ doctl apps create --spec app.yaml
 ```
 or use the helper script:
 ```bash
-./scripts/deploy.sh --cloud
+./scripts/deploy.sh --cloud [--region <region>]
 ```
 
 ## Environment Variables
