@@ -429,7 +429,11 @@ export class VoiceSession {
       
       source.start(0);
     } catch (error) {
-      console.error('[VoiceSession] TTS playback error:', error);
+      console.error('[VoiceSession] TTS playback error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        text: text.slice(0, 50) + '...',
+        error
+      });
       this.speaking = false;
       if (this.capturingAudio) {
         this.setupSpeechRecognition();

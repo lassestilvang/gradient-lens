@@ -21,6 +21,9 @@ export async function POST(request: NextRequest) {
     const cleanBaseUrl = piperUrl.replace(/\/$/, '');
     const url = new URL(cleanBaseUrl);
     url.searchParams.set('text', text);
+    
+    console.log(`[API/TTS] Calling Piper: ${url.toString()}`);
+
     // Some versions might require voice to be explicit if model directory has many
     // url.searchParams.set('voice', 'en_US-amy-medium'); 
 
