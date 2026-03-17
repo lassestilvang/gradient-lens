@@ -220,7 +220,7 @@ export class VoiceSession {
     };
 
     recognition.onend = () => {
-      if (!this.capturingAudio || this.restartingRecognition) {
+      if (!this.capturingAudio || this.restartingRecognition || this.speaking) {
         return;
       }
 
@@ -316,6 +316,11 @@ export class VoiceSession {
     }
     this.speaking = false;
     this.emit({ type: 'text', text: `[Interrupted: ${reason}]` });
+    
+    // Resume recognition after interruption if needed
+    if (this.capturingAudio && !this.recognition) {
+       this.setupSpeechRecognition();
+    }
   }
 
   private async respondWithModel(message: string): Promise<void> {
@@ -363,17 +368,36 @@ export class VoiceSession {
       return;
     }
 
+    // Set speaking flag immediately to block recognition restarts
+    this.speaking = true;
+    
+    // Stop recognition to avoid hearing own voice
+    if (this.recognition) {
+       this.recognition.stop();
+       this.recognition = null;
+    }
+
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = 1;
     utterance.pitch = 1;
+
     utterance.onstart = () => {
       this.speaking = true;
     };
     utterance.onend = () => {
       this.speaking = false;
+      // Restart recognition after a short delay to avoid catching any remaining echo
+      setTimeout(() => {
+        if (this.capturingAudio && !this.speaking) {
+          this.setupSpeechRecognition();
+        }
+      }, 400);
     };
     utterance.onerror = () => {
       this.speaking = false;
+      if (this.capturingAudio) {
+        this.setupSpeechRecognition();
+      }
     };
 
     window.speechSynthesis.cancel();

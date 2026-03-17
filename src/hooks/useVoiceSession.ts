@@ -209,43 +209,8 @@ export function useVoiceSession(
     };
 
     const checkVolume = () => {
-      if (sessionRef.current) {
-        const currentlySpeaking = sessionRef.current.isSpeaking;
-        const now = Date.now();
-
-        if (currentlySpeaking && !wasSpeaking) {
-          assistantSpeechStartedRef.current = now;
-          loudFrames = 0;
-        }
-
-        if (!currentlySpeaking) {
-          loudFrames = 0;
-        }
-
-        const pastGraceWindow = now - assistantSpeechStartedRef.current >= BARGE_IN_GRACE_MS;
-        const cooldownFinished = now - lastInterruptRef.current >= BARGE_IN_COOLDOWN_MS;
-
-        // Barge-in is disabled to prevent self-interruption.
-        // The assistant will now speak until completion regardless of detected input volume.
-        /*
-        if (currentlySpeaking && pastGraceWindow && cooldownFinished) {
-          const rms = getRms();
-          if (rms >= BARGE_IN_RMS_THRESHOLD) {
-            loudFrames += 1;
-          } else {
-            loudFrames = Math.max(0, loudFrames - 1);
-          }
-
-          if (loudFrames >= BARGE_IN_REQUIRED_FRAMES) {
-            sessionRef.current.interrupt('barge-in');
-            lastInterruptRef.current = now;
-            loudFrames = 0;
-          }
-        }
-        */
-
-        wasSpeaking = currentlySpeaking;
-      }
+      // Barge-in is now handled by pausing recognition in VoiceSession.ts
+      // during speech playback, which is more reliable than VAD-based interruption.
       rafVolume = requestAnimationFrame(checkVolume);
     };
     rafVolume = requestAnimationFrame(checkVolume);
