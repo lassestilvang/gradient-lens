@@ -17,13 +17,26 @@ export async function POST(request: NextRequest) {
     }
 
     // Call the self-hosted Piper service
-    // Piper typically accepts a 'text' query param or JSON and returns a WAV file
-    const response = await fetch(`${piperUrl}?text=${encodeURIComponent(text)}`, {
+    // Piper rhasspy/piper typically accepts 'text' query param at root
+    const cleanBaseUrl = piperUrl.replace(/\/$/, '');
+    const url = new URL(cleanBaseUrl);
+    url.searchParams.set('text', text);
+    // Some versions might require voice to be explicit if model directory has many
+    // url.searchParams.set('voice', 'en_US-amy-medium'); 
+
+    const response = await fetch(url.toString(), {
       method: 'GET',
     });
 
     if (!response.ok) {
+      const errorText = await response.text().catch(() => 'Unknown error');
+      console.error(`[API/TTS] Piper failed (${response.status}):`, errorText);
       throw new Error(`Piper service failed: ${response.statusText}`);
+    }
+
+    const contentType = response.headers.get('Content-Type');
+    if (!contentType?.includes('audio')) {
+       console.warn(`[API/TTS] Unexpected content type from Piper: ${contentType}. Service might be showing help page.`);
     }
 
     const audioBuffer = await response.arrayBuffer();
