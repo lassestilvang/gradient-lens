@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 import { formatMedicationResponse } from './medicationSafety';
-import { MedicationInfo } from './medicationOCR';
+import { MedicationInfo } from '../services/medicationOCR';
 
 describe('Medication Safety Utilities - formatMedicationResponse', () => {
   const baseInfo: MedicationInfo = {

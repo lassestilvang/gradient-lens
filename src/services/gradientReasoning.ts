@@ -15,7 +15,7 @@ export interface GradientReasoningMessage {
   content: string;
 }
 
-interface GradientReasoningResponse {
+export interface GradientReasoningResponse {
   role: 'assistant';
   content: string;
   tool_use?: {
@@ -112,7 +112,7 @@ function toToolUse(value: unknown): GradientReasoningResponse['tool_use'] | unde
 export async function invokeGradientReasoning(
   messages: GradientReasoningMessage[],
   tools: GradientReasoningTool[]
-): Promise<unknown> {
+): Promise<GradientReasoningResponse> {
   if (!messages || messages.length === 0) {
     throw new Error('Messages are required');
   }

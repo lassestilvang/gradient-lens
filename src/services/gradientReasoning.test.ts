@@ -1,11 +1,11 @@
 /**
  * @jest-environment node
  */
-import { invokeGradientReasoning } from './gradientReasoning';
+import { invokeGradientReasoning, GradientReasoningMessage } from './gradientReasoning';
 
 describe('Gradient AI tool orchestration Service Wrapper', () => {
   it('should structure a tool-use request for DigitalOcean Gradient AI', async () => {
-    const messages = [{ role: 'user', content: 'What is the price of milk?' }];
+    const messages: GradientReasoningMessage[] = [{ role: 'user', content: 'What is the price of milk?' }];
     const tools = [
       {
         name: 'search_prices',
@@ -17,7 +17,7 @@ describe('Gradient AI tool orchestration Service Wrapper', () => {
     const result = await invokeGradientReasoning(messages, tools);
 
     expect(result).toHaveProperty('tool_use');
-    expect(result.tool_use.name).toBe('search_prices');
+    expect(result.tool_use?.name).toBe('search_prices');
   });
 
   it('should throw error for empty messages', async () => {
