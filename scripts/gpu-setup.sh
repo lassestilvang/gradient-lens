@@ -70,6 +70,16 @@ docker run --gpus all -d \
     --max-model-len 8192 \
     --gpu-memory-utilization 0.8
 
+docker run --runtime nvidia --gpus all -d \
+    --name vllm-vision \
+    -v /root/.cache/huggingface:/root/.cache/huggingface \
+    -p 8000:8000 \
+    --ipc=host \
+    vllm/vllm-openai:latest \
+    --model /root/.cache/huggingface/hub/models--Qwen--Qwen3-VL-8B-Instruct/snapshots/0c351dd01ed87e9c1b53cbc748cba10e6187ff3b \
+    --max-model-len 16384 \
+    --gpu-memory-utilization 0.9
+
 echo "✅ vLLM is starting in the background!"
 echo "Check progress with: docker logs -f vllm-vision"
 echo "Your endpoint will be: http://$(curl -s ifconfig.me):8000/v1"
