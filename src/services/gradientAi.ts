@@ -1,4 +1,4 @@
-const DEFAULT_BASE_URL = 'https://inference.do-ai.run';
+export const DEFAULT_BASE_URL = 'https://inference.do-ai.run';
 const DEFAULT_TEXT_MODEL = 'llama3.3-70b-instruct';
 const DEFAULT_VISION_MODEL = 'openai-gpt-4o-mini';
 
@@ -25,7 +25,7 @@ export interface GradientCompletionResponse {
   raw: unknown;
 }
 
-function getModelAccessKey(): string {
+export function getModelAccessKey(): string {
   const key = process.env.DO_GRADIENT_MODEL_ACCESS_KEY;
   if (!key) {
     throw new Error('Missing DO_GRADIENT_MODEL_ACCESS_KEY. Create a Gradient model access key and add it to your environment.');
