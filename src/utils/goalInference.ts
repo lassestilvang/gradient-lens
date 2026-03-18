@@ -23,8 +23,6 @@ export function inferGoalFromQuestion(question: string): string | null {
     // Generic where/see queries (keep existing behavior for these)
     /(?:where(?:'s| is)|do you see)\s+(?:the|a|an|my)?\s*([a-z0-9][a-z0-9\s-]{1,40})/,
     /(?:is there|can you see|show me)\s+(?:the|a|an)?\s*([a-z0-9][a-z0-9\s-]{1,40})/,
-    // Fallback: Just capture the whole string if it's short and looks like an object
-    /^([a-z0-9][a-z0-9\s-]{1,40})$/,
   ];
 
   for (const pattern of patterns) {

@@ -16,4 +16,11 @@ describe('inferGoalFromQuestion', () => {
   it('returns null for broad questions without a target', () => {
     expect(inferGoalFromQuestion('What do you see right now?')).toBeNull();
   });
+
+  it('does not infer goals from casual conversation', () => {
+    expect(inferGoalFromQuestion('Thanks for your help')).toBeNull();
+    expect(inferGoalFromQuestion('That is great')).toBeNull();
+    expect(inferGoalFromQuestion('I am just looking around')).toBeNull();
+    expect(inferGoalFromQuestion('Sounds good')).toBeNull();
+  });
 });
