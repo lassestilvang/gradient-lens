@@ -220,7 +220,13 @@ export class VoiceSession {
       if (event?.error === 'aborted') {
         return;
       }
-      this.emit({ type: 'error', error: event?.error || 'Speech recognition failed' });
+      
+      let errorMessage = event?.error || 'Speech recognition failed';
+      if (event?.error === 'network') {
+        errorMessage = 'Network Error: Speech Recognition service is unreachable. Check your connection or browser settings.';
+      }
+      
+      this.emit({ type: 'error', error: errorMessage });
     };
 
     recognition.onend = () => {
@@ -406,7 +412,8 @@ export class VoiceSession {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch TTS audio');
+        const body = (await response.json().catch(() => ({}))) as { error?: string };
+        throw new Error(body.error || 'Failed to fetch TTS audio');
       }
 
       const audioData = await response.arrayBuffer();
@@ -440,11 +447,18 @@ export class VoiceSession {
       
       source.start(0);
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown TTS error';
       console.error('[VoiceSession] TTS playback error details:', {
-        message: error instanceof Error ? error.message : 'Unknown error',
+        message: errorMessage,
         text: text.slice(0, 50) + '...',
         error
       });
+      
+      this.emit({
+        type: 'error',
+        error: `Voice Error: ${errorMessage}`,
+      });
+
       this.speaking = false;
       if (this.capturingAudio) {
         this.setupSpeechRecognition();
