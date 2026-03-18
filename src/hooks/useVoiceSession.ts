@@ -3,11 +3,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { VoiceSession, VoiceEvent, VoiceSessionConfig } from '../services/voiceSession';
 
-const BARGE_IN_GRACE_MS = 900;
-const BARGE_IN_COOLDOWN_MS = 1500;
-const BARGE_IN_RMS_THRESHOLD = 0.08;
-const BARGE_IN_REQUIRED_FRAMES = 4;
-
 export interface UseVoiceSessionReturn {
   /** Start the voice session */
   startSession: () => Promise<void>;
@@ -185,28 +180,12 @@ export function useVoiceSession(
     }
   }, []);
 
-  const lastInterruptRef = useRef<number>(0);
-  const assistantSpeechStartedRef = useRef<number>(0);
-
   // Barge-in check (VAD)
   useEffect(() => {
     if (!isCapturing || !analyzer || !isConnected) return;
 
     let rafVolume: number;
     let rafStatus: number;
-    const timeDomainData = new Uint8Array(analyzer.fftSize);
-    let wasSpeaking = false;
-    let loudFrames = 0;
-
-    const getRms = () => {
-      analyzer.getByteTimeDomainData(timeDomainData);
-      let sumSquares = 0;
-      for (let i = 0; i < timeDomainData.length; i++) {
-        const centered = (timeDomainData[i] - 128) / 128;
-        sumSquares += centered * centered;
-      }
-      return Math.sqrt(sumSquares / timeDomainData.length);
-    };
 
     const checkVolume = () => {
       // Barge-in is now handled by pausing recognition in VoiceSession.ts

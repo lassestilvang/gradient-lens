@@ -330,7 +330,7 @@ export class VoiceSession {
     if (this.currentAudioSource) {
       try {
         this.currentAudioSource.stop();
-      } catch (e) {
+      } catch {
         // Source might have already ended
       }
       this.currentAudioSource = null;

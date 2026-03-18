@@ -124,7 +124,7 @@ describe('Gradient AI Service', () => {
       }),
     });
 
-    const result = await requestGradientChatCompletion({
+    await requestGradientChatCompletion({
       model: 'very-specific-model',
       messages: [{ role: 'user', content: 'Hello' }],
     });

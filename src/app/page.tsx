@@ -371,7 +371,7 @@ export default function Page() {
           <div className="flex flex-col items-start">
             <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">GradientLens</h1>
             <p className="text-[10px] text-zinc-500 tracking-widest uppercase font-bold">
-              {mode} Mode
+              Finder Mode
             </p>
           </div>
 
