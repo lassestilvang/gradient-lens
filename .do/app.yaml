@@ -1,42 +1,41 @@
 name: gradient-lens
 region: ams3
 services:
-- name: gradient-lens
-  github:
-    repo: lassestilvang/gradient-lens
-    branch: main
-    deploy_on_push: true
-  build_command: npm run build
-  run_command: npm start
-  http_port: 3000
-  instance_count: 1
-  instance_size_slug: basic-xxs
-  envs:
-  - key: REDIS_URL
-    scope: RUN_AND_BUILD_TIME
-    value: ${gradient-lens-redis.DATABASE_URL}
-  - key: DO_GRADIENT_MODEL_ACCESS_KEY
-    scope: RUN_TIME
-    type: SECRET
-  - key: DO_GRADIENT_BASE_URL
-    scope: RUN_TIME
-    value: https://inference.do-ai.run
-  - key: DO_GRADIENT_TEXT_MODEL
-    scope: RUN_TIME
-    value: llama3.3-70b-instruct
-  - key: DO_GRADIENT_VISION_MODEL
-    scope: RUN_TIME
-    value: openai-gpt-4o-mini
-  - key: MEMORY_TTL_SECONDS
-    scope: RUN_TIME
-    value: "86400"
-  - key: KOKORO_TTS_URL
-    scope: RUN_TIME
-    value: https://inference.do-ai.run/v1/audio/speech
-
+  - name: gradient-lens
+    github:
+      repo: lassestilvang/gradient-lens
+      branch: main
+      deploy_on_push: true
+    build_command: npm run build
+    run_command: npm start
+    http_port: 3000
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    envs:
+      - key: REDIS_URL
+        scope: RUN_AND_BUILD_TIME
+        value: ${gradient-lens-redis.DATABASE_URL}
+      - key: DO_GRADIENT_MODEL_ACCESS_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: DO_GRADIENT_BASE_URL
+        scope: RUN_TIME
+        value: https://inference.do-ai.run
+      - key: DO_GRADIENT_TEXT_MODEL
+        scope: RUN_TIME
+        value: llama3.3-70b-instruct
+      - key: DO_GRADIENT_VISION_MODEL
+        scope: RUN_TIME
+        value: openai-gpt-4o-mini
+      - key: MEMORY_TTL_SECONDS
+        scope: RUN_TIME
+        value: "86400"
+      - key: KOKORO_TTS_URL
+        scope: RUN_TIME
+        value: https://inference.do-ai.run/v1/audio/speech
 databases:
-- engine: REDIS
-  name: gradient-lens-redis
-  production: true
-  cluster_name: gradient-lens-redis-cluster # REQUIRED: The name of an existing Managed Redis cluster
-  version: "7"
+  - name: gradient-lens-redis
+    engine: REDIS
+    production: true
+    cluster_name: gradient-lens-redis-cluster
+    version: "7"
