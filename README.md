@@ -1,92 +1,106 @@
-# GradientLens
+# 🌊 GradientLens: Powered by DigitalOcean
 
-GradientLens is a real-time, multimodal assistive app for people with low vision. It combines live camera analysis, proactive safety cues, and voice interaction, powered by DigitalOcean App Platform and custom GPU Droplets.
-
-## Hackathon Alignment
-
-This project is configured for the DigitalOcean Gradient AI Hackathon and uses a hybrid architecture of DigitalOcean serverless inference and dedicated GPU droplets.
-
-1. Platform: DigitalOcean App Platform (Next.js frontend) and Droplets (GPU inference).
-2. Auth: Model access key via `DO_GRADIENT_MODEL_ACCESS_KEY`.
-3. Persistent Storage: DigitalOcean Managed Redis.
-
-## Architecture
-
-```mermaid
-graph TD
-    Client[Next.js Client] -->|POST /api/analyze| AnalyzeAPI[Analyze Route]
-    Client -->|POST /api/ground| GroundAPI[Ground Route]
-    Client -->|POST /api/chat| ChatAPI[Chat Route]
-    Client -->|POST /api/tts| TTSAPI[TTS Route]
-    AnalyzeAPI -->|Vision Prompt + Image| VisionGPU[vLLM GPU Droplet / Gradient]
-    GroundAPI -->|Grounding Prompt| Gradient[Gradient Text Inference]
-    ChatAPI -->|Conversation Prompt| Gradient
-    TTSAPI -->|Text| TTSGPU[Kokoro TTS GPU Droplet / Gradient]
-    Client -->|GET/POST /api/memory| MemoryAPI[Session Memory API]
-    MemoryAPI -->|Persistence| Redis[DigitalOcean Managed Redis]
-```
-
-## Features
-
-1. Live camera scene understanding for grocery, document, medication, and environment modes (powered by Qwen3-VL-8B-Instruct or GPT-4o-mini).
-2. Proactive suggestions and hazard detection.
-3. Voice session with browser speech recognition + high-speed GPU accelerated text-to-speech (Kokoro).
-4. Document summarization and question answering.
-5. Persistent session memory backed by **DigitalOcean Managed Redis**.
-
-## Local Setup
-
-1. Install dependencies with `npm ci`.
-2. Copy `.env.example` to `.env.local`.
-3. Configure your environment variables in `.env.local` (see below).
-4. Run the app with `npm run dev`.
-5. For mobile testing, expose your local server with `./scripts/tunnel.sh 3000`.
-6. Run tests with `npm test`.
-
-## GPU Droplet Infrastructure (Optional/Custom Inference)
-
-We provide scripts to spin up your own GPU droplets for high-performance Vision and TTS capabilities.
-
-1. **Vision Inference (vLLM)**: Run `./scripts/gpu-setup.sh` on an AI/ML-ready GPU Droplet to host `Qwen3-VL-8B-Instruct` via vLLM. This provides a fast, open-source vision endpoint on port `8000`.
-2. **TTS (Kokoro)**: Run `./scripts/tts-setup.sh` on a GPU Droplet to host Kokoro TTS via FastAPI. This provides ultra-fast speech synthesis on port `8880`.
-
-Update your `.env.local` with the endpoints provided by these scripts.
-
-## Automated Cloud Deployment
+GradientLens is a real-time, multimodal assistive app for people with low vision. It combines live camera analysis, proactive safety cues, and voice interaction—all powered by the incredible speed, scale, and developer experience of the **DigitalOcean Cloud**.
 
 [![Deploy to DigitalOcean](https://www.deploytodo.com/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/lasse/gradient-lens/tree/main)
 
-Alternatively, use the DigitalOcean CLI and our deployment helper.
+## 🏆 DigitalOcean Gradient AI Hackathon
+
+This project was built from the ground up to showcase the power of the DigitalOcean ecosystem. We've created a hybrid, hyper-scalable architecture leveraging DO's best-in-class products:
+
+🚀 **DigitalOcean App Platform**  
+Seamless, zero-config global deployment for our Next.js frontend and API routes. Pushing to production is as simple as a `git push`.
+
+🧠 **DigitalOcean Gradient AI (Serverless Inference)**  
+Blazing fast, serverless LLM inference. We use Gradient AI to power real-time conversational agents, grounding orchestration, and multimodal reasoning without managing any infrastructure.
+
+⚡ **DigitalOcean Managed Databases (Redis/Valkey)**  
+Highly available, fully managed Redis provides lightning-fast persistent session memory, allowing GradientLens to remember past interactions and user context securely.
+
+🔥 **DigitalOcean GPU Droplets (H200, H100, L40S, RTX 6000 ADA, RTX 4000 ADA)**  
+For custom, bleeding-edge open-source models! We provisioned raw DO GPU Droplets to host **Qwen3-VL-8B-Instruct** (via vLLM) for ultra-fast visual scene understanding, and **Kokoro TTS** for real-time, low-latency voice synthesis.
+
+---
+
+## 🏗️ Architecture: The DO Advantage
+
+```mermaid
+graph TD
+    Client[Next.js Client] -->|Global Edge Routing| AppPlatform{DO App Platform}
+    AppPlatform -->|POST /api/analyze| AnalyzeAPI[Analyze Route]
+    AppPlatform -->|POST /api/ground| GroundAPI[Ground Route]
+    AppPlatform -->|POST /api/chat| ChatAPI[Chat Route]
+    AppPlatform -->|POST /api/tts| TTSAPI[TTS Route]
+    
+    AnalyzeAPI -->|Vision Prompt + Image| VisionGPU[DO GPU Droplet: vLLM / Qwen3-VL]
+    GroundAPI -->|Grounding Prompt| Gradient[DO Gradient AI: Llama 3.3]
+    ChatAPI -->|Conversation Prompt| Gradient
+    TTSAPI -->|Text| TTSGPU[DO GPU Droplet: Kokoro TTS]
+    
+    AppPlatform -->|GET/POST /api/memory| MemoryAPI[Session Memory API]
+    MemoryAPI -->|Sub-millisecond Persistence| Redis[(DO Managed Redis)]
+```
+
+## ✨ Features
+
+1. **Live Camera Scene Understanding:** Real-time grocery, document, medication, and environment modes powered by dedicated DO GPU Droplets.
+2. **Proactive Safety & Hazard Detection:** Low-latency inference ensures users get safety cues exactly when they need them.
+3. **Conversational AI:** Grounded, context-aware voice sessions backed by DO Gradient AI's Llama 3.3.
+4. **Instant Voice Responses:** High-speed GPU-accelerated text-to-speech (Kokoro) on DO Droplets.
+5. **Persistent Context:** DO Managed Redis ensures user sessions and memory never drop.
+
+## 💻 Local Setup & Development
+
+Experience the DO developer magic locally:
+
+1. Install dependencies: `npm ci`
+2. Copy environment variables: `cp .env.example .env.local`
+3. Add your **DO Gradient Model Access Key**: `DO_GRADIENT_MODEL_ACCESS_KEY`
+4. Run the app: `npm run dev`
+5. Test on mobile (requires HTTPS): `./scripts/tunnel.sh 3000`
+
+## 🚀 Unleashing DO GPU Droplets (Custom Inference)
+
+Take full control with DigitalOcean's powerful GPU Droplets. We provide one-click setup scripts to transform a raw DO GPU instance into a high-performance inference server:
+
+1. **Vision Inference (vLLM)**: Run `./scripts/gpu-setup.sh` on an AI/ML-ready DO GPU Droplet to instantly deploy `Qwen3-VL-8B-Instruct`. This provides a massive throughput, OpenAI-compatible vision endpoint on port `8000`.
+2. **Real-time TTS (Kokoro)**: Run `./scripts/tts-setup.sh` on a DO GPU Droplet to host Kokoro TTS via FastAPI for natural, ultra-fast speech synthesis on port `8880`.
+
+Update your `.env.local` with your new Droplet IPs!
+
+## ☁️ Automated Cloud Deployment to DO
+
+DigitalOcean makes deployment beautifully simple. Use our helper script to validate and push directly to the DO App Platform:
 
 > [!IMPORTANT]
-> **Prerequisite**: You must create a Managed Database cluster **before** deploying the App Spec, as Redis/Valkey cannot be auto-provisioned within the spec.
+> **Pro-Tip**: Create your Managed Database cluster **before** deploying the App Spec!
 >
 > ```bash
-> # Create the cluster (takes ~5 minutes)
+> # Spin up a highly available Redis cluster in ~5 minutes!
 > doctl databases create gradient-lens-redis-cluster --engine valkey --region nyc3 --size db-s-1vcpu-1gb --num-nodes 1
 > ```
 
-Once the cluster is ready, deploy the app:
+Once your DO Redis cluster is ready, deploy the entire stack:
 ```bash
 ./scripts/deploy.sh --cloud [--region <region>]
 ```
-This script automatically syncs your model and TTS endpoints from `.env.local` to `app.yaml`.
+Our script magically syncs your local `.env.local` model configurations and custom Droplet IPs straight into the DigitalOcean `app.yaml` spec.
 
-## Environment Variables
+## 🔐 Environment Variables
 
-- `DO_GRADIENT_MODEL_ACCESS_KEY` (required): DigitalOcean Gradient model access key.
-- `DO_GRADIENT_BASE_URL` (optional): Defaults to `https://inference.do-ai.run` or your custom Droplet IP.
-- `DO_GRADIENT_TEXT_MODEL` (optional): Text/chat model ID (default: `llama3.3-70b-instruct`).
-- `DO_GRADIENT_VISION_MODEL` (optional): Vision-capable model ID (default: `openai-gpt-4o-mini`).
-- `KOKORO_TTS_URL` (optional): TTS API endpoint (default uses Gradient, or set to your Kokoro Droplet IP).
-- `REDIS_URL` (optional): Connection string for DigitalOcean Managed Redis.
+- `DO_GRADIENT_MODEL_ACCESS_KEY` (required): Your key to the Gradient AI kingdom.
+- `DO_GRADIENT_BASE_URL` (optional): Defaults to `https://inference.do-ai.run`.
+- `DO_GRADIENT_TEXT_MODEL` (optional): DO Text model ID (default: `llama3.3-70b-instruct`).
+- `DO_GRADIENT_VISION_MODEL` (optional): DO Vision model ID (default: `openai-gpt-4o-mini` or your custom Droplet IP).
+- `KOKORO_TTS_URL` (optional): Point this to your dedicated DO TTS Droplet!
+- `REDIS_URL` (optional): Connection string for your blazing fast DO Managed Redis.
 - `MEMORY_TTL_SECONDS` (optional): Session memory retention window.
 
-## Utilities
+## 🛠️ DO Utilities
 
-- `./scripts/deploy.sh`: Validates environment, builds the app, and optionally deploys to DigitalOcean App Platform.
-- `./scripts/tunnel.sh`: Starts a secure tunnel (via localtunnel or ngrok) for testing on mobile devices.
-- `./scripts/teardown.sh`: Cleans up local build artifacts (`.next` folder).
+- `./scripts/deploy.sh`: Validates and deploys to DO App Platform via `doctl`.
+- `./scripts/gpu-setup.sh`: Turns a DO Droplet into a vLLM Vision Server.
+- `./scripts/tts-setup.sh`: Turns a DO Droplet into a Kokoro TTS Server.
 
 ## License
 
