@@ -2,7 +2,7 @@
 
 GradientLens is a real-time, multimodal assistive app for people with low vision. It combines live camera analysis, proactive safety cues, and voice interaction - all powered by the incredible speed, scale, and developer experience of the **DigitalOcean Cloud**.
 
-[![Deploy to DigitalOcean](https://www.deploytodo.com/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/lassestilvang/gradient-lens/)
+[![Deploy to DigitalOcean](https://www.deploytodo.com/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/lassestilvang/gradient-lens/tree/main)
 
 ## 🏆 DigitalOcean Gradient AI Hackathon
 
