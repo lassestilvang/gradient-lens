@@ -85,7 +85,7 @@ const CameraStream = forwardRef<CameraStreamHandle, CameraStreamProps>(({
     async function setupCamera() {
       try {
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-          setError('Camera API not supported in this browser');
+          setError('Camera API requires a Secure Context (HTTPS or localhost). Please use a secure tunnel for mobile testing.');
           return;
         }
 
