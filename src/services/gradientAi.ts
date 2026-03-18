@@ -41,6 +41,16 @@ export function getGradientVisionModel(): string {
   return process.env.DO_GRADIENT_VISION_MODEL || DEFAULT_VISION_MODEL;
 }
 
+/**
+ * Checks if the message history contains any image content.
+ */
+function isVisionRequest(messages: GradientMessage[]): boolean {
+  return messages.some((msg) =>
+    Array.isArray(msg.content) &&
+    msg.content.some((part) => part.type === 'image_url')
+  );
+}
+
 export async function requestGradientChatCompletion(
   request: GradientCompletionRequest
 ): Promise<GradientCompletionResponse> {
@@ -48,7 +58,13 @@ export async function requestGradientChatCompletion(
   const backupUrl = DEFAULT_BASE_URL.replace(/\/$/, '');
   const apiKey = getModelAccessKey();
 
-  const makeRequest = async (baseUrl: string) => {
+  const makeRequest = async (baseUrl: string, forceDefault = false) => {
+    let model = request.model || getGradientTextModel();
+
+    if (forceDefault) {
+      model = isVisionRequest(request.messages) ? DEFAULT_VISION_MODEL : DEFAULT_TEXT_MODEL;
+    }
+
     const response = await fetch(`${baseUrl}/v1/chat/completions`, {
       method: 'POST',
       headers: {
@@ -56,7 +72,7 @@ export async function requestGradientChatCompletion(
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: request.model || getGradientTextModel(),
+        model,
         messages: request.messages,
         temperature: request.temperature ?? 0.2,
         max_completion_tokens: request.maxCompletionTokens ?? 600,
@@ -85,7 +101,9 @@ export async function requestGradientChatCompletion(
   } catch (error) {
     if (primaryUrl !== backupUrl) {
       console.warn(`[GradientAi] Primary inference failed, falling back to Serverless Inference:`, error);
-      return await makeRequest(backupUrl);
+      // When falling back to Serverless Inference, we MUST use the default models
+      // because they are the only ones guaranteed to be available on that endpoint.
+      return await makeRequest(backupUrl, true);
     }
     throw error;
   }
