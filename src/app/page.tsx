@@ -347,8 +347,8 @@ export default function Page() {
       greetingSentRef.current = true;
       const currentGoal = goalRef.current;
       const greetingInstruction = currentGoal
-        ? `[System Observation] Please greet the user warmly. They have a goal: "${currentGoal}". Briefly acknowledge it and ask how you can assist.`
-        : "[System Observation] Please greet the user warmly and ask what they would like help with today.";
+        ? `[System Observation] Please greet the user warmly. They have a goal: "${currentGoal}". Briefly acknowledge it and ask how you can assist. Do NOT use emojis.`
+        : "[System Observation] Please greet the user warmly and ask what they would like help with today. Do NOT use emojis.";
       voice.sendText(greetingInstruction, true);
     } else if (!voice.isConnected) {
       greetingSentRef.current = false;

@@ -385,6 +385,11 @@ export class VoiceSession {
     // Set speaking flag immediately to block recognition restarts
     this.speaking = true;
 
+    // Remove emojis as they are spoken out loud by some TTS engines (like Piper)
+    // and can be confusing for low-vision users. We strip both the emojis and 
+    // common modifiers like variation selectors (uFE0F).
+    const cleanText = text.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]|\uFE0F|\uFE0E)/g, '');
+
     // Stop recognition to avoid hearing own voice
     if (this.recognition) {
       this.recognition.stop();
@@ -395,7 +400,7 @@ export class VoiceSession {
       const response = await fetch('/api/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text: cleanText }),
       });
 
       if (!response.ok) {
