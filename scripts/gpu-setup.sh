@@ -49,27 +49,6 @@ fi
 #     --max-model-len 4096 \
 #     --limit-mm-per-prompt '{"image": 1}'
 
-docker run --runtime nvidia --gpus all \
-    --name vllm-vision \
-    -d \
-    -v ~/.cache/huggingface:/root/.cache/huggingface \
-    -p 8000:8000 \
-    --ipc=host \
-    vllm/vllm-openai \
-    --model Qwen/Qwen3-VL-8B-Instruct \
-    --max-model-len 32768 \
-    --limit-mm-per-prompt '{"image": 1}'
-
-docker run --gpus all -d \
-    -v /root/.cache/huggingface:/root/.cache/huggingface \
-    -p 8000:8000 \
-    --ipc=host \
-    vllm/vllm-openai:latest \
-    --model /root/.cache/huggingface/hub/models--Qwen--Qwen3-VL-8B-Instruct/snapshots/0c351dd01ed87e9c1b53cbc748cba10e6187ff3b \
-    --quantization fp8 \
-    --max-model-len 8192 \
-    --gpu-memory-utilization 0.8
-
 docker run --runtime nvidia --gpus all -d \
     --name vllm-vision \
     -v /root/.cache/huggingface:/root/.cache/huggingface \
@@ -78,7 +57,8 @@ docker run --runtime nvidia --gpus all -d \
     vllm/vllm-openai:latest \
     --model /root/.cache/huggingface/hub/models--Qwen--Qwen3-VL-8B-Instruct/snapshots/0c351dd01ed87e9c1b53cbc748cba10e6187ff3b \
     --max-model-len 16384 \
-    --gpu-memory-utilization 0.9
+    --gpu-memory-utilization 0.9 \
+    --limit-mm-per-prompt '{"image": 1}'
 
 echo "✅ vLLM is starting in the background!"
 echo "Check progress with: docker logs -f vllm-vision"
