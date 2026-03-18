@@ -38,6 +38,8 @@ export default function Page() {
   const inferredGoalRef = useRef<string>('');
   const pendingObservationRef = useRef<string | null>(null);
   const objectPresenceRef = useRef<{ object: string; lastSeenAt: number }>({ object: '', lastSeenAt: 0 });
+  // Once a goal object is spotted and alerted, suppress further alerts until the goal changes.
+  const goalAlertedRef = useRef<boolean>(false);
 
   // Session ID — stable across the session lifecycle
   const sessionIdRef = useRef<string>('');
@@ -66,6 +68,8 @@ export default function Page() {
     if (goal.trim()) {
       inferredGoalRef.current = goal.trim();
     }
+    // New goal — allow the next sighting to trigger an alert again.
+    goalAlertedRef.current = false;
   }, [goal]);
   useEffect(() => { memoryRef.current = memory; }, [memory]);
   useEffect(() => { lastSuggestionRef.current = lastSuggestion; }, [lastSuggestion]);
@@ -167,13 +171,15 @@ export default function Page() {
             && now - objectPresenceRef.current.lastSeenAt < OBJECT_REAPPEARANCE_MS;
           objectPresenceRef.current = { object: matchedObject, lastSeenAt: now };
 
-          if (!recentlySeenSameObject) {
+          if (!recentlySeenSameObject && !goalAlertedRef.current) {
             const observation = `[System Observation] I can see ${matchedObject} in frame right now.`;
             const { text: previousObservation, timestamp: previousTimestamp } = lastSpokenObservationRef.current;
             const isDuplicateWithinCooldown =
               previousObservation === observation && now - previousTimestamp < PROACTIVE_OBSERVATION_COOLDOWN_MS;
 
             if (!isDuplicateWithinCooldown) {
+              // Mark goal as alerted so subsequent frames don't trigger duplicate alerts.
+              goalAlertedRef.current = true;
               setLastSuggestion(`Spotted ${matchedObject} in frame.`);
               playEarcon('chime');
 
