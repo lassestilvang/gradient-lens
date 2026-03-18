@@ -24,6 +24,8 @@ For custom, bleeding-edge open-source models! We provisioned raw DO GPU Droplets
 
 ## 🏗️ Architecture: The DO Advantage
 
+![Architecture Diagram](architecture.png)
+
 ```mermaid
 graph TD
     Client[Next.js Client] -->|Global Edge Routing| AppPlatform{DO App Platform}
