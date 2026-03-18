@@ -30,6 +30,9 @@ services:
   - key: MEMORY_TTL_SECONDS
     scope: RUN_TIME
     value: "86400"
+  - key: KOKORO_TTS_URL
+    scope: RUN_TIME
+    value: https://inference.do-ai.run/v1/audio/speech
 
 databases:
 - engine: REDIS

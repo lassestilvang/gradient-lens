@@ -87,6 +87,7 @@ if [[ "$DEPLOY_CLOUD" == "true" ]]; then
     
     TEXT_MODEL=$(grep '^DO_GRADIENT_TEXT_MODEL=' .env.local | cut -d '=' -f2)
     VISION_MODEL=$(grep '^DO_GRADIENT_VISION_MODEL=' .env.local | cut -d '=' -f2)
+    KOKORO_URL=$(grep '^KOKORO_TTS_URL=' .env.local | cut -d '=' -f2-)
     
     if [ -n "$TEXT_MODEL" ]; then
       sed -i '' "/key: DO_GRADIENT_TEXT_MODEL/{n;n;s/value: .*/value: $TEXT_MODEL/;}" app.yaml
@@ -94,6 +95,11 @@ if [[ "$DEPLOY_CLOUD" == "true" ]]; then
     
     if [ -n "$VISION_MODEL" ]; then
       sed -i '' "/key: DO_GRADIENT_VISION_MODEL/{n;n;s/value: .*/value: $VISION_MODEL/;}" app.yaml
+    fi
+
+    if [ -n "$KOKORO_URL" ]; then
+      echo "🔊 Syncing KOKORO_TTS_URL to app.yaml..."
+      sed -i '' "/key: KOKORO_TTS_URL/{n;n;s|value: .*|value: $KOKORO_URL|;}" app.yaml
     fi
   fi
 
