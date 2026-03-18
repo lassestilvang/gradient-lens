@@ -15,6 +15,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'GradientLens',
   description: 'AI that understands the world around you',
+  appleWebApp: {
+    capable: true,
+    title: 'GradientLens',
+    statusBarStyle: 'black-translucent',
+  },
   icons: {
     icon: '/favicon.ico',
     apple: '/logo.png',
