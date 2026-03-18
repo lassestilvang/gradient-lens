@@ -2,10 +2,9 @@ name: gradient-lens
 region: ams3
 services:
 - name: gradient-lens
-  github:
-    repo: lassestilvang/gradient-lens
+  git:
+    repo_clone_url: https://github.com/lassestilvang/gradient-lens.git
     branch: main
-    deploy_on_push: true
   build_command: npm run build
   run_command: npm start
   http_port: 3000
