@@ -12,7 +12,7 @@ This project was built from the ground up to showcase the power of the DigitalOc
 Seamless, zero-config global deployment for our Next.js frontend and API routes. Pushing to production is as simple as a `git push`.
 
 🧠 **DigitalOcean Gradient AI (Serverless Inference)**  
-Blazing fast, highly available serverless LLM inference. We use Gradient AI as the primary engine for real-time conversational agents and grounding orchestration. Crucially, it also serves as our **bulletproof fallback layer**: if our custom GPU Droplets ever experience downtime, the app seamlessly falls back to Gradient's Serverless Inference to ensure users never lose access to critical visual and conversational features.
+Highly available, serverless LLM inference. We use Gradient AI as our **bulletproof fallback layer**: if our custom GPU Droplets ever experience downtime or latency spikes, the app seamlessly falls back to Gradient's Serverless Inference to ensure users never lose access to critical visual, chat, and grounding features.
 
 ⚡ **DigitalOcean Managed Databases (Redis/Valkey)**  
 Highly available, fully managed Redis provides lightning-fast persistent session memory, allowing GradientLens to remember past interactions and user context securely.
@@ -32,10 +32,13 @@ graph TD
     AppPlatform -->|POST /api/chat| ChatAPI[Chat Route]
     AppPlatform -->|POST /api/tts| TTSAPI[TTS Route]
     
-    AnalyzeAPI -->|Vision Prompt + Image| VisionGPU[DO GPU Droplet: vLLM / Qwen3-VL]
-    GroundAPI -->|Grounding Prompt| Gradient[DO Gradient AI: Llama 3.3]
-    ChatAPI -->|Conversation Prompt| Gradient
-    TTSAPI -->|Text| TTSGPU[DO GPU Droplet: Kokoro TTS]
+    AnalyzeAPI -->|Primary: Vision Prompt| VisionGPU[DO GPU Droplet: vLLM / Qwen3-VL]
+    GroundAPI -->|Primary: Text Prompt| VisionGPU
+    ChatAPI -->|Primary: Text Prompt| VisionGPU
+    TTSAPI -->|Primary: Text| TTSGPU[DO GPU Droplet: Kokoro TTS]
+
+    VisionGPU -.->|Fallback on Failure| Gradient[DO Gradient AI Serverless Inference]
+    TTSGPU -.->|Fallback on Failure| Gradient
     
     AppPlatform -->|GET/POST /api/memory| MemoryAPI[Session Memory API]
     MemoryAPI -->|Sub-millisecond Persistence| Redis[(DO Managed Redis)]
@@ -46,7 +49,7 @@ graph TD
 1. **Live Camera Scene Understanding:** Real-time grocery, document, medication, and environment modes powered by dedicated DO GPU Droplets.
 2. **Highly Available Architecture (DO Fallback):** Code-level resilience ensures that if custom inference endpoints ever experience latency or downtime, the system automatically and instantly falls back to DigitalOcean Serverless Inference.
 3. **Proactive Safety & Hazard Detection:** Low-latency inference ensures users get safety cues exactly when they need them.
-4. **Conversational AI:** Grounded, context-aware voice sessions backed by DO Gradient AI's Llama 3.3.
+4. **Conversational AI:** Grounded, context-aware voice sessions backed by Qwen3-VL on DO GPU Droplets.
 5. **Instant Voice Responses:** High-speed GPU-accelerated text-to-speech (Kokoro) on DO Droplets.
 6. **Persistent Context:** DO Managed Redis ensures user sessions and memory never drop.
 
