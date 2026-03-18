@@ -224,7 +224,7 @@ export class VoiceSession {
     };
 
     recognition.onend = () => {
-      if (!this.capturingAudio || this.restartingRecognition || this.speaking) {
+      if (this.recognition !== recognition || !this.capturingAudio || this.restartingRecognition || this.speaking) {
         return;
       }
 
@@ -232,7 +232,9 @@ export class VoiceSession {
       setTimeout(() => {
         this.restartingRecognition = false;
         try {
-          recognition.start();
+          if (this.capturingAudio && !this.speaking) {
+            this.setupSpeechRecognition();
+          }
         } catch {
           // Ignore restart races.
         }
