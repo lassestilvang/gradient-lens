@@ -147,9 +147,13 @@ export class VoiceSession {
       this.setupSpeechRecognition();
       this.capturingAudio = true;
     } catch (error) {
+      let errorMessage = error instanceof Error ? error.message : 'Failed to access microphone';
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        errorMessage = 'Microphone API requires a Secure Context (HTTPS or localhost). Please use a secure tunnel for mobile testing.';
+      }
       this.emit({
         type: 'error',
-        error: error instanceof Error ? error.message : 'Failed to access microphone',
+        error: errorMessage,
       });
     }
   }
