@@ -1,8 +1,8 @@
 # 🌊 GradientLens: Powered by DigitalOcean
 
-GradientLens is a real-time, multimodal assistive app for people with low vision. It combines live camera analysis, proactive safety cues, and voice interaction—all powered by the incredible speed, scale, and developer experience of the **DigitalOcean Cloud**.
+GradientLens is a real-time, multimodal assistive app for people with low vision. It combines live camera analysis, proactive safety cues, and voice interaction - all powered by the incredible speed, scale, and developer experience of the **DigitalOcean Cloud**.
 
-[![Deploy to DigitalOcean](https://www.deploytodo.com/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/lasse/gradient-lens/tree/main)
+[![Deploy to DigitalOcean](https://www.deploytodo.com/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/lassestilvang/gradient-lens/)
 
 ## 🏆 DigitalOcean Gradient AI Hackathon
 
@@ -59,7 +59,7 @@ graph TD
 
 Experience the DO developer magic locally:
 
-1. Install dependencies: `npm ci`
+1. Install dependencies: `npm install`
 2. Copy environment variables: `cp .env.example .env.local`
 3. Add your **DO Gradient Model Access Key**: `DO_GRADIENT_MODEL_ACCESS_KEY`
 4. Run the app: `npm run dev`
@@ -79,7 +79,7 @@ Update your `.env.local` with your new Droplet IPs!
 DigitalOcean makes deployment beautifully simple. Use our helper script to validate and push directly to the DO App Platform:
 
 > [!IMPORTANT]
-> **Pro-Tip**: Create your Managed Database cluster **before** deploying the App Spec!
+> **Pro-Tip**: Create your Managed Database cluster **before** deploying the App Spec! Use the same region as for the deploy script.
 >
 > ```bash
 > # Spin up a highly available Redis cluster in ~5 minutes!
