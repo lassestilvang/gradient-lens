@@ -41,6 +41,8 @@ export default function Page() {
   const objectPresenceRef = useRef<{ object: string; lastSeenAt: number }>({ object: '', lastSeenAt: 0 });
   // Once a goal object is spotted and alerted, suppress further alerts until the goal changes.
   const goalAlertedRef = useRef<boolean>(false);
+  // Prevent parallel analysis loops when frames arrive faster than we can process them.
+  const isAnalyzingRef = useRef<boolean>(false);
 
   // Session ID — stable across the session lifecycle
   const sessionIdRef = useRef<string>('');
@@ -65,13 +67,19 @@ export default function Page() {
   const voiceConnectedRef = useRef(false);
   const voiceSpeakingRef = useRef(false);
   useEffect(() => {
-    goalRef.current = goal;
-    if (goal.trim()) {
-      inferredGoalRef.current = goal.trim();
+    const trimmed = goal.trim();
+    const oldGoal = goalRef.current.trim();
+
+    // Only reset the alerted flag if the goal text has actually changed.
+    // This prevents re-triggers if the same goal is set multiple times.
+    if (trimmed !== oldGoal) {
+      goalRef.current = goal;
+      if (trimmed) {
+        inferredGoalRef.current = trimmed;
+      }
+      goalAlertedRef.current = false;
+      setIsGoalFound(false);
     }
-    // New goal — allow the next sighting to trigger an alert again.
-    goalAlertedRef.current = false;
-    setIsGoalFound(false);
   }, [goal]);
   useEffect(() => { memoryRef.current = memory; }, [memory]);
   useEffect(() => { lastSuggestionRef.current = lastSuggestion; }, [lastSuggestion]);
@@ -126,6 +134,9 @@ export default function Page() {
   };
 
   const onFrameCapture = useCallback(async (frameData: string) => {
+    // Prevent overlapping analysis ticks
+    if (isAnalyzingRef.current) return;
+
     // Read current state from refs to avoid re-creating this callback
     const currentMode = modeRef.current;
     const currentGoal = goalRef.current;
@@ -133,6 +144,7 @@ export default function Page() {
     const currentLastSuggestion = lastSuggestionRef.current;
 
     try {
+      isAnalyzingRef.current = true;
       setIsProcessing(true);
       setAnalysisError(null);
       const startTime = Date.now();
@@ -238,15 +250,19 @@ export default function Page() {
 
       // 4. Proactive Advice
       const effectiveGoal = currentGoal || inferredGoalRef.current;
-      if (effectiveGoal || currentMode === 'environment') {
+      if (effectiveGoal && !goalAlertedRef.current) {
         const suggestionResult = await evaluateProactiveSuggestion({
           environment: sceneAnalysis.environment,
           objects_seen: currentMemory,
-          user_goal: effectiveGoal || 'stay safe',
+          user_goal: effectiveGoal,
         }, sceneAnalysis);
 
-        if (suggestionResult.shouldSuggest && suggestionResult.suggestionPrompt) {
+        if (suggestionResult.shouldSuggest && suggestionResult.suggestionPrompt && !goalAlertedRef.current) {
           if (suggestionResult.suggestionPrompt !== currentLastSuggestion) {
+            // Lock immediately to prevent duplicate triggers from other ticks
+            goalAlertedRef.current = true;
+            setIsGoalFound(true);
+
             setLastSuggestion(suggestionResult.suggestionPrompt);
             playEarcon('chime');
             if (voiceConnectedRef.current) {
@@ -268,6 +284,7 @@ export default function Page() {
       setAnalysisError(fallback.userMessage);
     } finally {
       setIsProcessing(false);
+      isAnalyzingRef.current = false;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Stable reference — reads state via refs
