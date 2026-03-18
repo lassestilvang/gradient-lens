@@ -44,38 +44,51 @@ export function getGradientVisionModel(): string {
 export async function requestGradientChatCompletion(
   request: GradientCompletionRequest
 ): Promise<GradientCompletionResponse> {
-  const baseUrl = (process.env.DO_GRADIENT_BASE_URL || DEFAULT_BASE_URL).replace(/\/$/, '');
+  const primaryUrl = (process.env.DO_GRADIENT_BASE_URL || DEFAULT_BASE_URL).replace(/\/$/, '');
+  const backupUrl = DEFAULT_BASE_URL.replace(/\/$/, '');
   const apiKey = getModelAccessKey();
 
-  const response = await fetch(`${baseUrl}/v1/chat/completions`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: request.model || getGradientTextModel(),
-      messages: request.messages,
-      temperature: request.temperature ?? 0.2,
-      max_completion_tokens: request.maxCompletionTokens ?? 600,
-    }),
-  });
+  const makeRequest = async (baseUrl: string) => {
+    const response = await fetch(`${baseUrl}/v1/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: request.model || getGradientTextModel(),
+        messages: request.messages,
+        temperature: request.temperature ?? 0.2,
+        max_completion_tokens: request.maxCompletionTokens ?? 600,
+      }),
+    });
 
-  const payload = await response.json().catch(() => null);
-  if (!response.ok) {
-    const errorMessage =
-      (payload as { error?: { message?: string } } | null)?.error?.message ||
-      `Gradient API request failed (${response.status})`;
-    throw new Error(errorMessage);
+    const payload = await response.json().catch(() => null);
+    if (!response.ok) {
+      const errorMessage =
+        (payload as { error?: { message?: string } } | null)?.error?.message ||
+        `Gradient API request failed (${response.status})`;
+      throw new Error(errorMessage);
+    }
+
+    const content =
+      (payload as { choices?: Array<{ message?: { content?: string } }> })?.choices?.[0]?.message?.content;
+    if (typeof content !== 'string') {
+      throw new Error('Gradient API response did not include assistant text content.');
+    }
+
+    return { content, raw: payload };
+  };
+
+  try {
+    return await makeRequest(primaryUrl);
+  } catch (error) {
+    if (primaryUrl !== backupUrl) {
+      console.warn(`[GradientAi] Primary inference failed, falling back to Serverless Inference:`, error);
+      return await makeRequest(backupUrl);
+    }
+    throw error;
   }
-
-  const content =
-    (payload as { choices?: Array<{ message?: { content?: string } }> })?.choices?.[0]?.message?.content;
-  if (typeof content !== 'string') {
-    throw new Error('Gradient API response did not include assistant text content.');
-  }
-
-  return { content, raw: payload };
 }
 
 export function extractJsonObjectFromText(text: string): Record<string, unknown> | null {
