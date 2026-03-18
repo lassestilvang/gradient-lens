@@ -5,7 +5,7 @@ describe('ModeSelector', () => {
   it('should render all four mode options', () => {
     render(<ModeSelector currentMode="grocery" onModeChange={jest.fn()} />);
     
-    expect(screen.getByText(/Grocery/i)).toBeInTheDocument();
+    expect(screen.getByText(/Finder/i)).toBeInTheDocument();
     expect(screen.getByText(/Document/i)).toBeInTheDocument();
     expect(screen.getByText(/Medication/i)).toBeInTheDocument();
     expect(screen.getByText(/Environment/i)).toBeInTheDocument();
