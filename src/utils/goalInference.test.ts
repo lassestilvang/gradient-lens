@@ -5,8 +5,12 @@ describe('inferGoalFromQuestion', () => {
     expect(inferGoalFromQuestion('Where is the baseball in frame?')).toBe('baseball');
   });
 
-  it('extracts a target from find queries', () => {
-    expect(inferGoalFromQuestion('Find my red water bottle')).toBe('red water bottle');
+  it('extracts a target from find queries including the verb', () => {
+    expect(inferGoalFromQuestion('Find my red water bottle')).toBe('find red water bottle');
+  });
+
+  it('extracts a target from the rubber duck query', () => {
+    expect(inferGoalFromQuestion('can you help me find my rubber duck')).toBe('find rubber duck');
   });
 
   it('returns null for broad questions without a target', () => {
