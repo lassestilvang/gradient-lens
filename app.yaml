@@ -3,9 +3,9 @@ region: ams3
 services:
 - name: gradient-lens
   github:
+    repo: lassestilvang/gradient-lens
     branch: main
     deploy_on_push: true
-    repo: lassestilvang/gradient-lens
   build_command: npm run build
   run_command: npm start
   http_port: 3000
