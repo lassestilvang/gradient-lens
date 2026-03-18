@@ -27,6 +27,7 @@ export default function Page() {
   const [memory, setMemory] = useState<string[]>([]);
   const [lastSuggestion, setLastSuggestion] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [isGoalFound, setIsGoalFound] = useState<boolean>(false);
   const [modeSuggestion, setModeSuggestion] = useState<AssistantMode | null>(null);
   const [showDebug, setShowDebug] = useState<boolean>(true);
   const [lastAnalysis, setLastAnalysis] = useState<Record<string, unknown> | null>(null);
@@ -70,6 +71,7 @@ export default function Page() {
     }
     // New goal — allow the next sighting to trigger an alert again.
     goalAlertedRef.current = false;
+    setIsGoalFound(false);
   }, [goal]);
   useEffect(() => { memoryRef.current = memory; }, [memory]);
   useEffect(() => { lastSuggestionRef.current = lastSuggestion; }, [lastSuggestion]);
@@ -180,6 +182,7 @@ export default function Page() {
             if (!isDuplicateWithinCooldown) {
               // Mark goal as alerted so subsequent frames don't trigger duplicate alerts.
               goalAlertedRef.current = true;
+              setIsGoalFound(true);
               setLastSuggestion(`Spotted ${matchedObject} in frame.`);
               playEarcon('chime');
 
@@ -447,7 +450,7 @@ export default function Page() {
             <>
               {goal && (
                 <div className="px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-xl text-blue-400 text-xs font-bold uppercase tracking-tight">
-                  Current Goal: {goal}
+                  Current Goal: {goal} {isGoalFound && '✅'}
                 </div>
               )}
 
