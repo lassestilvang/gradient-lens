@@ -61,7 +61,7 @@ function createId(prefix: string): string {
 }
 
 function shouldAnalyzeFrame(text: string): boolean {
-  return /(what do you see|what's in front|what is in front|do you see|where is|can you spot|can you find)/i.test(text);
+  return /(what do you see|what's in front|what is in front|do you see|can you see|show me|where is|can you spot|can you find)/i.test(text);
 }
 
 function getSpeechRecognitionCtor(): SpeechRecognitionCtor | null {

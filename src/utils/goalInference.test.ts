@@ -23,4 +23,11 @@ describe('inferGoalFromQuestion', () => {
     expect(inferGoalFromQuestion('I am just looking around')).toBeNull();
     expect(inferGoalFromQuestion('Sounds good')).toBeNull();
   });
+
+  it('does not infer goals from generic subjects like "what i see"', () => {
+    expect(inferGoalFromQuestion('can you see what I see')).toBeNull();
+    expect(inferGoalFromQuestion('can you see what I am pointing the camera at')).toBeNull();
+    expect(inferGoalFromQuestion('do you see what i m looking at')).toBeNull();
+    expect(inferGoalFromQuestion('show me what i see')).toBeNull();
+  });
 });

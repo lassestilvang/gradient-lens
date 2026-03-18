@@ -42,7 +42,13 @@ export function inferGoalFromQuestion(question: string): string | null {
       .replace(/[^a-z0-9\s-]/g, '')
       .trim();
 
-    if (cleanedObject.length >= 3 && !genericPhrases.has(cleanedObject)) {
+    // Skip generic subjects that don't represent a specific object goal
+    const isGenericSubject = 
+      genericPhrases.has(cleanedObject) || 
+      /^what (?:i|im|i'm|i am)\b/i.test(cleanedObject) ||
+      cleanedObject.toLowerCase() === 'it';
+
+    if (cleanedObject.length >= 3 && !isGenericSubject) {
       return verb ? `${verb} ${cleanedObject}` : cleanedObject;
     }
   }
